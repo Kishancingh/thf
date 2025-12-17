@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Hidden Founder • Neev se Shikhar Tak</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Uncovering untold entrepreneurial stories from India's heartland.">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            thf: {
+              blue: '#001030',    /* Deep Blue */
+              gold: '#D4AF37',    /* Premium Gold */
+              goldLight: '#F4CF57',
+              dark: '#000818'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-gold': 'pulseGold 3s infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-15px)' },
+            },
+            pulseGold: {
+              '0%, 100%': { boxShadow: '0 0 10px rgba(212, 175, 55, 0.2)' },
+              '50%': { boxShadow: '0 0 25px rgba(212, 175, 55, 0.6)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* =========================================
+       CORE STYLES
+       ========================================= */
+    html, body {
+      margin: 0; padding: 0;
+      scroll-behavior: smooth;
+      background-color: #001030;
+      color: white;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* NAV OFFSET */
+    section { scroll-margin-top: 100px; }
+
+    /* CUSTOM SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #001030; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+
+    /* CANVAS BACKGROUND */
+    #podcastVisualizer {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0; pointer-events: none; opacity: 0.8; mix-blend-mode: screen;
+    }
+
+    /* VIGNETTE */
+    .bg-vignette {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at center, transparent 0%, #001030 95%);
+        z-index: 1; pointer-events: none;
+    }
+
+    /* CONTENT WRAPPER */
+    .content-layer { position: relative; z-index: 10; }
+
+    /* GLASSMORPHISM CARDS */
+    .glass-card {
+      background: rgba(0, 16, 48, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 50px -10px rgba(0,0,0,0.6);
+    }
+
+    /* TEXT GRADIENTS */
+    .text-gradient-gold {
+      background: linear-gradient(135deg, #FFF 10%, #D4AF37 50%, #F4CF57 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* SHINY BUTTON */
+    .btn-shine { position: relative; overflow: hidden; }
+    .btn-shine::after {
+        content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: 0.5s;
+    }
+    .btn-shine:hover::after { left: 100%; }
+
+    /* MARQUEE */
+    .marquee-container { overflow: hidden; white-space: nowrap; position: relative; }
+    .marquee-content { display: inline-flex; animation: scroll 35s linear infinite; }
+    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* === SIDE DRAWER MOBILE MENU === */
+    #menuOverlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
+        z-index: 9998; opacity: 0; visibility: hidden; transition: 0.3s;
+        backdrop-filter: blur(4px);
+    }
+    #menuOverlay.active { opacity: 1; visibility: visible; }
+
+    #mobileMenuPanel {
+        position: fixed; top: 0; right: 0; bottom: 0;
+        width: 85%; max-width: 320px;
+        background: #001030;
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 1px solid rgba(212, 175, 55, 0.2);
+        box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        display: flex; flex-direction: column;
+    }
+    #mobileMenuPanel.active { transform: translateX(0); }
+
+    @media (max-width: 768px) {
+        .timeline-line { left: 20px; }
+    }
+  </style>
+</head>
+
+<body class="bg-thf-blue text-slate-200 antialiased font-sans selection:bg-thf-gold selection:text-thf-blue">
+
+  <canvas id="podcastVisualizer"></canvas>
+  <div class="bg-vignette"></div>
+
+  <div id="menuOverlay" onclick="closeMenu()"></div>
+  
+  <div id="mobileMenuPanel">
+      <div class="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-[#000818]">
+          <div class="flex items-center gap-3">
+              <img src="logo.png" alt="THF" class="w-8 h-8 object-contain">
+              <span class="font-bold text-lg text-white tracking-widest">MENU</span>
+          </div>
+          <button onclick="closeMenu()" class="text-slate-400 hover:text-white p-1">
+              <i class='bx bx-x text-4xl'></i>
+          </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto py-6 px-6 space-y-6">
+          <a href="#mission" onclick="closeMenu()" class="block text-xl font-medium text-slate-300 hover:text-thf-gold transition-colors border-b border-white/5 pb-2">
+              <span class="text-thf-gold text-sm mr-3 font-mono">01.</span>Mission
+          </a>
+          <a href="#host" onclick="closeMenu()" class="block text-xl font-medium text-slate-300 hover:text-thf-gold transition-colors border-b border-white/5 pb-2">
+              <span class="text-thf-gold text-sm mr-3 font-mono">02.</span>Host
+          </a>
+          <a href="#process" onclick="closeMenu()" class="block text-xl font-medium text-slate-300 hover:text-thf-gold transition-colors border-b border-white/5 pb-2">
+              <span class="text-thf-gold text-sm mr-3 font-mono">03.</span>Process
+          </a>
+          <a href="#sponsorship" onclick="closeMenu()" class="block text-xl font-medium text-slate-300 hover:text-thf-gold transition-colors border-b border-white/5 pb-2">
+              <span class="text-thf-gold text-sm mr-3 font-mono">04.</span>Partnership
+          </a>
+
+          <div class="pt-6">
+              <a href="#contact" onclick="closeMenu()" class="block w-full py-4 bg-thf-gold text-thf-blue font-bold text-center rounded-xl shadow-lg hover:bg-white transition-colors">
+                  Partner With Us
+              </a>
+          </div>
+      </div>
+
+      <div class="p-6 border-t border-white/10 bg-[#000818]">
+          <p class="text-xs text-slate-500 mb-4 uppercase tracking-widest text-center">Follow Us</p>
+          <div class="flex justify-center gap-8">
+              <a href="https://www.youtube.com/@Talks.Kishan/" target="_blank" class="text-2xl text-slate-400 hover:text-red-500"><i class='bx bxl-youtube'></i></a>
+              <a href="https://www.linkedin.com/in/kishancingh/" target="_blank" class="text-2xl text-slate-400 hover:text-blue-500"><i class='bx bxl-linkedin'></i></a>
+              <a href="https://www.instagram.com/talks.kishan" target="_blank" class="text-2xl text-slate-400 hover:text-pink-500"><i class='bx bxl-instagram'></i></a>
+          </div>
+      </div>
+  </div>
+
+  <div class="content-layer">
+
+    <nav class="fixed top-0 w-full z-50 glass-card border-b border-white/5 bg-thf-blue/90">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+          
+          <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer">
+            <img src="logo.png" alt="THF Logo" class="w-10 h-10 md:w-12 md:h-12 object-contain drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">
+            
+            <div class="flex flex-col">
+              <span class="text-[10px] md:text-xl font-bold tracking-tight text-white leading-none">THE HIDDEN</span>
+              <span class="text-[10px] md:text-xl font-bold tracking-tight text-white leading-none">FOUNDER</span>
+              <span class="text-[8px] md:text-xs font-bold text-thf-gold tracking-[0.2em] leading-none mt-0.5 md:mt-1">PODCAST</span>
+            </div>
+          </div>
+
+          <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+            <a href="#mission" class="hover:text-thf-gold transition-colors">Mission</a>
+            <a href="#host" class="hover:text-thf-gold transition-colors">Host</a>
+            <a href="#process" class="hover:text-thf-gold transition-colors">Process</a>
+            <a href="#sponsorship" class="hover:text-thf-gold transition-colors">Partnership</a>
+            <a href="#contact" class="btn-shine bg-thf-gold text-thf-blue px-6 py-2.5 rounded-full font-bold shadow-lg hover:scale-105 transition-transform">
+              Partner With Us
+            </a>
+          </div>
+
+          <div class="flex md:hidden">
+            <button onclick="openMenu()" class="text-white hover:text-thf-gold transition-colors p-2">
+                <i class='bx bx-menu-alt-right text-4xl'></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <section class="relative pt-36 pb-20 lg:pt-52 lg:pb-32 overflow-hidden text-center px-6">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-thf-gold/30 bg-thf-gold/5 backdrop-blur-sm mb-8 animate-float">
+          <span class="flex h-2 w-2 rounded-full bg-thf-gold animate-pulse-gold"></span>
+          <span class="text-xs font-bold text-thf-gold uppercase tracking-widest">Neev Se Shikhar Tak 🚀</span>
+      </div>
+      <h1 class="text-5xl md:text-7xl lg:text-9xl font-extrabold tracking-tight mb-6 leading-tight drop-shadow-2xl">
+        Uncovering India's <br/> <span class="text-gradient-gold">Hidden Giants</span>
+      </h1>
+      <p class="mt-6 max-w-2xl mx-auto text-lg text-slate-300 font-light leading-relaxed">
+        Bridging the knowledge gap for Tier-2 & 3 founders. We decode the raw, unfiltered reality of entrepreneurship from the heart of Bharat.
+      </p>
+      <div class="mt-12 flex flex-col sm:flex-row gap-5 justify-center items-center px-4">
+          <a href="#contact" class="btn-shine w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-thf-gold to-yellow-600 text-thf-blue font-bold rounded-xl shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-transform hover:scale-105">
+            Become a Sponsor
+          </a>
+          <a href="https://www.youtube.com/@Talks.Kishan/" target="_blank" class="w-full sm:w-auto px-8 py-4 glass-card text-white font-semibold rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 group border border-white/10">
+              <i class='bx bx-play-circle text-3xl text-thf-gold group-hover:scale-110 transition-transform'></i>
+              <span>Watch Episodes</span>
+          </a>
+      </div>
+    </section>
+
+    <div class="border-y border-white/5 bg-black/30 py-8 backdrop-blur-sm">
+      <div class="marquee-container">
+        <div class="marquee-content gap-16 px-4 items-center">
+          <span class="text-2xl font-bold text-white/40 flex items-center gap-3 hover:text-white transition-colors"><i class='bx bxl-youtube'></i> YouTube</span>
+          <span class="text-2xl font-bold text-white/40 flex items-center gap-3 hover:text-white transition-colors"><i class='bx bxl-spotify'></i> Spotify</span>
+          <span class="text-2xl font-bold text-white/40 flex items-center gap-3 hover:text-white transition-colors"><i class='bx bxl-linkedin'></i> LinkedIn</span>
+          <span class="text-2xl font-bold text-white/40 flex items-center gap-3 hover:text-white transition-colors"><i class='bx bxl-instagram'></i> Instagram</span>
+          <span class="text-2xl font-bold text-white/40 flex items-center gap-3 hover:text-white transition-colors"><i class='bx bxl-youtube'></i> YouTube</span>
+          <span class="text-2xl font-bold text-white/40 flex items-center gap-3 hover:text-white transition-colors"><i class='bx bxl-spotify'></i> Spotify</span>
+          <span class="text-2xl font-bold text-white/40 flex items-center gap-3 hover:text-white transition-colors"><i class='bx bxl-linkedin'></i> LinkedIn</span>
+          <span class="text-2xl font-bold text-white/40 flex items-center gap-3 hover:text-white transition-colors"><i class='bx bxl-instagram'></i> Instagram</span>
+        </div>
+      </div>
+    </div>
+
+    <section id="mission" class="py-24 relative px-6 md:px-12">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 md:gap-12">
+            <div class="glass-card p-8 md:p-10 rounded-3xl border-l-4 border-l-thf-gold relative overflow-hidden group">
+                <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><i class='bx bx-target-lock text-9xl'></i></div>
+                <h2 class="text-3xl font-bold mb-4 flex items-center gap-3 text-white"><i class='bx bx-target-lock text-thf-gold'></i> Our Mission</h2>
+                <p class="text-slate-300 leading-relaxed text-lg">
+                    To democratize entrepreneurial wisdom. We exist to ensure that geography and background never dictate a founder's ability to succeed. We bring high-level business strategies to the grassroots of India.
+                </p>
+            </div>
+            <div class="glass-card p-8 md:p-10 rounded-3xl border-l-4 border-l-blue-500 relative overflow-hidden group">
+                <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><i class='bx bx-world text-9xl'></i></div>
+                <h2 class="text-3xl font-bold mb-4 flex items-center gap-3 text-white"><i class='bx bx-world text-blue-500'></i> Our Vision</h2>
+                <p class="text-slate-300 leading-relaxed text-lg">
+                    To become the largest repository of Indian startup stories from Tier-2 and Tier-3 cities, creating a future where "Hidden Founders" are the new mainstream icons.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold">Who is <span class="text-gradient-gold">THF For?</span></h2>
+                <p class="text-slate-400 mt-4 text-lg">We speak the language of the builders.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass-panel p-8 rounded-2xl text-center hover:bg-white/5 transition-colors group">
+                    <div class="w-16 h-16 mx-auto bg-blue-500/10 border border-blue-500/30 rounded-full flex items-center justify-center mb-6 text-blue-400 text-4xl group-hover:scale-110 transition-transform"><i class='bx bx-rocket'></i></div>
+                    <h3 class="text-2xl font-bold mb-3 text-white">Aspiring Founders</h3>
+                    <p class="text-base text-slate-400">Individuals in Tier-2/3 cities looking for relatable role models and practical roadmaps.</p>
+                </div>
+                <div class="glass-panel p-8 rounded-2xl text-center hover:bg-white/5 transition-colors group">
+                    <div class="w-16 h-16 mx-auto bg-thf-gold/10 border border-thf-gold/30 rounded-full flex items-center justify-center mb-6 text-thf-gold text-4xl group-hover:scale-110 transition-transform"><i class='bx bxs-graduation'></i></div>
+                    <h3 class="text-2xl font-bold mb-3 text-white">Students & Dreamers</h3>
+                    <p class="text-base text-slate-400">University students who want to break out of the traditional job mindset.</p>
+                </div>
+                <div class="glass-panel p-8 rounded-2xl text-center hover:bg-white/5 transition-colors group">
+                    <div class="w-16 h-16 mx-auto bg-purple-500/10 border border-purple-500/30 rounded-full flex items-center justify-center mb-6 text-purple-400 text-4xl group-hover:scale-110 transition-transform"><i class='bx bx-briefcase-alt-2'></i></div>
+                    <h3 class="text-2xl font-bold mb-3 text-white">Early Stage Startups</h3>
+                    <p class="text-base text-slate-400">Founders with an MVP who need guidance on scaling, funding, and hiring.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-6 md:px-12 bg-gradient-to-b from-transparent to-black/40">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-8">Podcast <span class="text-slate-600">vs</span> Vlogging</h2>
+                    <p class="text-lg text-slate-300 mb-8">Why we chose the mic over the motion camera. We prioritize depth over distraction.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-5">
+                            <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 shrink-0 border border-red-500/20"><i class='bx bx-x text-2xl'></i></div>
+                            <div>
+                                <h4 class="text-xl font-bold text-red-400 mb-1">Vlogging (Entertainment)</h4>
+                                <p class="text-sm text-slate-400">Fast cuts, surface-level content, focus on visuals rather than value. Often fleeting attention.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-5">
+                            <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0 border border-green-500/20"><i class='bx bx-check text-2xl'></i></div>
+                            <div>
+                                <h4 class="text-xl font-bold text-green-400 mb-1">THF Podcast (Education)</h4>
+                                <p class="text-sm text-slate-400">Deep-dive conversations, actionable business insights, and long-form retention. We build authority.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative mt-8 md:mt-0">
+                    <div class="glass-card p-3 rounded-3xl transform rotate-1 hover:rotate-0 transition-transform duration-700 shadow-2xl">
+                        <div class="bg-[#000818] rounded-2xl p-8 border border-white/5">
+                            <div class="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+                                <span class="text-xs uppercase text-slate-500 tracking-widest font-bold">Retention Rate</span>
+                                <span class="text-green-400 text-sm font-bold bg-green-500/10 px-3 py-1 rounded-full">+400% Higher</span>
+                            </div>
+                            <div class="space-y-5">
+                                <div>
+                                    <div class="h-3 bg-slate-800 rounded-full w-full overflow-hidden">
+                                        <div class="h-full bg-red-500 w-[20%]"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-slate-500 mt-2"><span>Vlog (3 mins)</span></div>
+                                </div>
+                                <div>
+                                    <div class="h-3 bg-slate-800 rounded-full w-full overflow-hidden relative">
+                                        <div class="absolute inset-0 bg-thf-gold w-[85%] shadow-[0_0_15px_#D4AF37]"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-slate-500 mt-2"><span>THF Podcast (45 mins)</span> <span class="text-thf-gold font-bold">High Impact</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="host" class="py-24 relative px-6 md:px-12">
+        <div class="max-w-5xl mx-auto">
+            <div class="glass-card rounded-3xl p-8 md:p-16 border border-thf-gold/30 flex flex-col md:flex-row items-center gap-12 bg-gradient-to-br from-thf-blue/80 to-transparent">
+                <div class="relative w-56 h-56 md:w-72 md:h-72 flex-shrink-0">
+                    <div class="absolute inset-0 bg-thf-gold rounded-full blur-2xl opacity-20"></div>
+                    <div class="relative w-full h-full rounded-full border-4 border-thf-gold shadow-[0_0_30px_rgba(212,175,55,0.3)] bg-gradient-to-b from-slate-700 to-slate-900 flex items-center justify-center overflow-hidden">
+                        <img src="host.jpg" alt="Kishan Singh" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700">
+                    </div>
+                </div>
+                
+                <div class="text-center md:text-left">
+                    <p class="text-thf-gold font-bold uppercase tracking-widest text-sm mb-3">Meet the Host</p>
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">Kishan Singh</h2>
+                    <div class="w-20 h-1 bg-thf-gold mb-6 mx-auto md:mx-0 rounded-full"></div>
+                    <p class="text-slate-300 mb-8 leading-relaxed text-lg">
+                        "I believe the next unicorn won't come from a glass building in Bangalore, but from a garage in Bihar." <br><br>
+                        As the voice behind <strong>The Hidden Founder</strong>, Kishan Singh is on a mission to unearth stories that mainstream media ignores. With a deep understanding of the Tier-2 landscape, he asks the questions that matter most to aspiring builders.
+                    </p>
+                    <div class="flex justify-center md:justify-start gap-5">
+                        <a href="https://www.youtube.com/@Talks.Kishan/" target="_blank" class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-slate-400 text-xl"><i class='bx bxl-youtube'></i></a>
+                        <a href="https://www.linkedin.com/in/kishancingh/" target="_blank" class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-white transition-all text-slate-400 text-xl"><i class='bx bxl-linkedin'></i></a>
+                        <a href="https://www.instagram.com/talks.kishan" target="_blank" class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-pink-600 hover:border-pink-600 hover:text-white transition-all text-slate-400 text-xl"><i class='bx bxl-instagram'></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="process" class="py-24 bg-black/20 px-6 md:px-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="text-3xl md:text-5xl font-bold">Guest <span class="text-thf-gold">Selection Process</span></h2>
+                <p class="text-slate-400 mt-4 text-lg">We don't just pick anyone. We pick stories that matter.</p>
+            </div>
+            
+            <div class="relative pl-8 md:pl-0">
+                <div class="hidden md:block timeline-line shadow-[0_0_15px_#D4AF37]"></div>
+                <div class="md:hidden absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-thf-gold to-transparent"></div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-center w-full group">
+                    <div class="w-full md:w-5/12 md:text-right pr-0 md:pr-10">
+                        <h3 class="text-2xl font-bold text-white group-hover:text-thf-gold transition-colors">1. Deep Research</h3>
+                        <p class="text-sm text-slate-400 mt-2">Our team scouts Tier-2/3 cities for businesses with unique traction or impact.</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-thf-gold border-4 border-thf-blue z-10 flex-shrink-0 absolute left-0 md:static md:mx-auto transform -translate-x-1/2 md:translate-x-0 mt-1 md:mt-0 shadow-[0_0_20px_#D4AF37]"></div>
+                    <div class="w-full md:w-5/12 pl-8 md:pl-10 hidden md:block border-l border-white/5"></div>
+                </div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-center w-full group">
+                    <div class="w-full md:w-5/12 hidden md:block border-r border-white/5"></div>
+                    <div class="w-10 h-10 rounded-full bg-blue-600 border-4 border-thf-blue z-10 flex-shrink-0 absolute left-0 md:static md:mx-auto transform -translate-x-1/2 md:translate-x-0 mt-1 md:mt-0 shadow-[0_0_20px_#2563eb]"></div>
+                    <div class="w-full md:w-5/12 pl-0 md:pl-10">
+                        <h3 class="text-2xl font-bold text-white group-hover:text-blue-500 transition-colors">2. Pre-Interview Screening</h3>
+                        <p class="text-sm text-slate-400 mt-2">A 30-minute call to check story depth, articulation, and value for the audience.</p>
+                    </div>
+                </div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-center w-full group">
+                    <div class="w-full md:w-5/12 md:text-right pr-0 md:pr-10">
+                        <h3 class="text-2xl font-bold text-white group-hover:text-purple-500 transition-colors">3. Content Structuring</h3>
+                        <p class="text-sm text-slate-400 mt-2">We build a custom narrative arc for the episode to ensure maximum engagement.</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-purple-600 border-4 border-thf-blue z-10 flex-shrink-0 absolute left-0 md:static md:mx-auto transform -translate-x-1/2 md:translate-x-0 mt-1 md:mt-0 shadow-[0_0_20px_#9333ea]"></div>
+                    <div class="w-full md:w-5/12 pl-8 md:pl-10 hidden md:block border-l border-white/5"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sponsorship" class="py-24 relative bg-black/20 px-6 md:px-12">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+          <h2 class="text-3xl md:text-5xl font-bold mb-4">Partnership <span class="text-gradient-gold">Program</span></h2>
+          <p class="text-slate-400 max-w-2xl mx-auto text-lg">Position your brand before the most ambitious minds in India.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="glass-card rounded-3xl p-8 border-t-4 border-t-blue-500 hover:bg-slate-900/80 transition-all flex flex-col">
+              <div class="mb-6"><i class='bx bx-time-five text-5xl text-blue-500'></i></div>
+              <h3 class="text-2xl font-bold text-white mb-2">Segment Sponsor</h3>
+              <p class="text-sm text-slate-400 mb-6">Targeted visibility during specific segments.</p>
+              <div class="mt-auto">
+                  <span class="text-3xl font-bold text-blue-400 block mb-6">Targeted Reach</span>
+                  <ul class="space-y-4 mb-8 text-sm text-slate-300">
+                      <li class="flex gap-3 items-center"><i class='bx bxs-check-circle text-blue-500'></i> 30s Segment Intro</li>
+                      <li class="flex gap-3 items-center"><i class='bx bxs-check-circle text-blue-500'></i> L-Band Banner</li>
+                  </ul>
+                  <a href="#contact" class="scroll-link block w-full py-4 rounded-xl border border-blue-500 text-blue-400 font-bold text-center hover:bg-blue-500 hover:text-white transition-all uppercase tracking-wide text-sm">Inquire Now</a>
+              </div>
+          </div>
+          <div class="glass-card rounded-3xl p-8 border-t-4 border-t-thf-gold transform md:-translate-y-6 shadow-[0_0_50px_rgba(212,175,55,0.2)] flex flex-col bg-slate-900/40">
+              <div class="bg-thf-gold text-thf-blue text-xs font-bold px-4 py-1.5 rounded-full inline-block mb-6 w-max shadow-lg">MOST POPULAR</div>
+              <h3 class="text-2xl font-bold text-white mb-2">Season Sponsor</h3>
+              <p class="text-sm text-slate-400 mb-6">Holistic branding across 10 episodes.</p>
+              <div class="mt-auto">
+                  <span class="text-3xl font-bold text-thf-gold block mb-6">Max Visibility</span>
+                  <ul class="space-y-4 mb-8 text-sm text-slate-300">
+                      <li class="flex gap-3 items-center"><i class='bx bxs-check-circle text-thf-gold'></i> <strong>60s Integrated Ad</strong></li>
+                      <li class="flex gap-3 items-center"><i class='bx bxs-check-circle text-thf-gold'></i> Logo on Thumbnails</li>
+                      <li class="flex gap-3 items-center"><i class='bx bxs-check-circle text-thf-gold'></i> "Powered By" Tag</li>
+                  </ul>
+                  <a href="#contact" class="scroll-link block w-full py-4 rounded-xl bg-gradient-to-r from-thf-gold to-yellow-600 text-thf-blue font-bold text-center shadow-lg hover:shadow-thf-gold/50 transition-all uppercase tracking-wide text-sm">Become a Partner</a>
+              </div>
+          </div>
+          <div class="glass-card rounded-3xl p-8 border-t-4 border-t-purple-500 hover:bg-slate-900/80 transition-all flex flex-col">
+              <div class="mb-6"><i class='bx bx-microphone text-5xl text-purple-500'></i></div>
+              <h3 class="text-2xl font-bold text-white mb-2">Episode Sponsor</h3>
+              <p class="text-sm text-slate-400 mb-6">Ownership of a single powerful story.</p>
+              <div class="mt-auto">
+                  <span class="text-3xl font-bold text-purple-400 block mb-6">High Impact</span>
+                  <ul class="space-y-4 mb-8 text-sm text-slate-300">
+                      <li class="flex gap-3 items-center"><i class='bx bxs-check-circle text-purple-500'></i> Integrated Ad Spot</li>
+                      <li class="flex gap-3 items-center"><i class='bx bxs-check-circle text-purple-500'></i> Community Shoutout</li>
+                  </ul>
+                  <a href="#contact" class="scroll-link block w-full py-4 rounded-xl border border-purple-500 text-purple-400 font-bold text-center hover:bg-purple-500 hover:text-white transition-all uppercase tracking-wide text-sm">Inquire Now</a>
+              </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="py-24 scroll-mt-28 px-6 md:px-12">
+      <div class="max-w-4xl mx-auto">
+          <div class="glass-card rounded-3xl p-8 md:p-14 border border-thf-gold/30 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+              <div class="text-center mb-12">
+                  <h2 class="text-3xl md:text-4xl font-bold text-white">Partner with <span class="text-thf-gold">THF</span></h2>
+                  <p class="text-slate-400 mt-3 text-lg">Sponsorships, Nominations, or Collaborations.</p>
+              </div>
+              <form class="space-y-8">
+                  <div class="grid md:grid-cols-2 gap-8">
+                      <div class="space-y-2">
+                        <label class="text-xs uppercase text-slate-400 font-bold tracking-wider">Full Name</label>
+                        <input type="text" placeholder="John Doe" class="bg-slate-900/60 border border-slate-700 rounded-xl px-5 py-4 w-full focus:outline-none focus:border-thf-gold text-white focus:bg-slate-900/90 transition-all placeholder-slate-600">
+                      </div>
+                      <div class="space-y-2">
+                        <label class="text-xs uppercase text-slate-400 font-bold tracking-wider">Email Address</label>
+                        <input type="email" placeholder="john@company.com" class="bg-slate-900/60 border border-slate-700 rounded-xl px-5 py-4 w-full focus:outline-none focus:border-thf-gold text-white focus:bg-slate-900/90 transition-all placeholder-slate-600">
+                      </div>
+                  </div>
+                  <div class="space-y-2">
+                      <label class="text-xs uppercase text-slate-400 font-bold tracking-wider">Phone Number</label>
+                      <input type="tel" placeholder="+91 XXXXX XXXXX" class="bg-slate-900/60 border border-slate-700 rounded-xl px-5 py-4 w-full focus:outline-none focus:border-thf-gold text-white focus:bg-slate-900/90 transition-all placeholder-slate-600">
+                  </div>
+                  <div class="space-y-2">
+                      <label class="text-xs uppercase text-slate-400 font-bold tracking-wider">Select Your Interest</label>
+                      <div class="relative">
+                          <select class="bg-slate-900/60 border border-slate-700 rounded-xl px-5 py-4 w-full focus:outline-none focus:border-thf-gold text-white focus:bg-slate-900/90 transition-all appearance-none cursor-pointer">
+                              <option value="" disabled selected>Choose an Option</option>
+                              <option value="season">Season Sponsorship (Best Value)</option>
+                              <option value="episode">Episode Sponsorship</option>
+                              <option value="segment">Segment Sponsorship</option>
+                              <option value="guest">Guest Nomination</option>
+                              <option value="general">General Inquiry</option>
+                          </select>
+                          <i class='bx bx-chevron-down absolute right-5 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none'></i>
+                      </div>
+                  </div>
+                  <div class="space-y-2">
+                      <label class="text-xs uppercase text-slate-400 font-bold tracking-wider">Describe Your Request</label>
+                      <textarea rows="4" placeholder="Tell us how you'd like to partner..." class="bg-slate-900/60 border border-slate-700 rounded-xl px-5 py-4 w-full focus:outline-none focus:border-thf-gold text-white focus:bg-slate-900/90 transition-all placeholder-slate-600"></textarea>
+                  </div>
+                  
+                  <button class="w-full py-5 bg-gradient-to-r from-thf-gold to-yellow-600 text-thf-blue font-bold rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all flex items-center justify-center gap-3 text-lg transform hover:-translate-y-1">
+                    Send Request <i class='bx bx-paper-plane text-xl'></i>
+                  </button>
+              </form>
+              <div class="mt-10 pt-10 border-t border-white/10 text-center">
+                   <a href="https://wa.me/910000000000" class="text-green-400 hover:text-green-300 font-semibold text-lg flex items-center justify-center gap-2 transition-colors"><i class='bx bxl-whatsapp text-3xl'></i> Chat on WhatsApp</a>
+              </div>
+          </div>
+      </div>
+    </section>
+
+    <footer class="bg-[#000818] border-t border-white/5 py-12 text-center md:text-left relative z-20 px-6">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div>
+              <div class="flex items-center gap-2 justify-center md:justify-start mb-2">
+                  <img src="logo.png" alt="THF Logo" class="w-10 h-10 object-contain">
+                  <span class="font-bold text-xl text-white">The Hidden Founder</span>
+              </div>
+              <p class="text-slate-500 text-sm">Neev se Shikhar Tak. &copy; 2025. All rights reserved.</p>
+          </div>
+          <div class="flex gap-6 text-2xl text-slate-400">
+              <a href="https://www.youtube.com/@Talks.Kishan/" target="_blank" class="hover:text-thf-gold hover:scale-110 transition-all"><i class='bx bxl-youtube'></i></a>
+              <a href="https://www.instagram.com/talks.kishan" target="_blank" class="hover:text-thf-gold hover:scale-110 transition-all"><i class='bx bxl-instagram'></i></a>
+              <a href="https://www.linkedin.com/in/kishancingh/" target="_blank" class="hover:text-thf-gold hover:scale-110 transition-all"><i class='bx bxl-linkedin'></i></a>
+          </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // 1. MOBILE MENU LOGIC (Slide Drawer)
+    const overlay = document.getElementById('menuOverlay');
+    const panel = document.getElementById('mobileMenuPanel');
+
+    function openMenu() {
+        overlay.classList.add('active');
+        panel.classList.add('active');
+    }
+
+    function closeMenu() {
+        overlay.classList.remove('active');
+        panel.classList.remove('active');
+    }
+
+    // 2. SMOOTH SCROLL (With Menu Close)
+    document.querySelectorAll('.scroll-link').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                closeMenu();
+            }
+        });
+    });
+
+    // 3. PREMIUM "PODCAST STUDIO" ANIMATION
+    const canvas = document.getElementById('podcastVisualizer');
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [];
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            this.size = Math.random() * 2;
+            this.speedY = Math.random() * 0.5 + 0.1;
+            this.opacity = Math.random() * 0.5 + 0.1;
+        }
+        update() {
+            this.y -= this.speedY;
+            if(this.y < 0) this.y = h;
+        }
+        draw() {
+            ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+            ctx.fill();
+        }
+    }
+
+    function init() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+        particles = [];
+        for(let i=0; i<50; i++) particles.push(new Particle());
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, w, h);
+        
+        const time = Date.now() * 0.0015;
+        
+        // 1. Draw Floating "Dust" Particles
+        particles.forEach(p => { p.update(); p.draw(); });
+
+        // 2. Draw "Siri-like" Liquid Audio Waves
+        const waveLayers = [
+            { color: 'rgba(212, 175, 55, 0.1)', speed: 1.0, amp: 60, offset: 0 },
+            { color: 'rgba(212, 175, 55, 0.2)', speed: 1.5, amp: 40, offset: 100 },
+            { color: 'rgba(37, 99, 235, 0.15)', speed: 0.8, amp: 50, offset: 200 }
+        ];
+
+        waveLayers.forEach(layer => {
+            ctx.beginPath();
+            ctx.moveTo(0, h/2);
+            for(let x = 0; x < w; x+=10) {
+                const y = h/2 + Math.sin(x * 0.003 + time * layer.speed + layer.offset) * layer.amp * Math.sin(x * 0.01 + time * 0.5);
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            
+            const grad = ctx.createLinearGradient(0, h/2, 0, h);
+            grad.addColorStop(0, layer.color);
+            grad.addColorStop(1, 'transparent');
+            ctx.fillStyle = grad;
+            ctx.fill();
+            
+            ctx.beginPath();
+            for(let x = 0; x < w; x+=10) {
+                const y = h/2 + Math.sin(x * 0.003 + time * layer.speed + layer.offset) * layer.amp * Math.sin(x * 0.01 + time * 0.5);
+                ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = layer.color.replace('0.1', '0.4').replace('0.2', '0.5');
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', init);
+    init();
+    animate();
+  </script>
+</body>
+</html>
